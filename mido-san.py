@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 
-# 該当するコード100件（ここに実際のコードをセットで記述）
-target_codes = {
+# 該当するコード7000件（ここに実際のコードをリスト形式で記述してください）
+target_codes = [
     'POMA3T2IBU3VXU',
 'PO0FOL0SE6ENOD',
 'POWDZ28JR423JV',
@@ -7002,8 +7002,8 @@ target_codes = {
 'POL5PD78JBHR1P',
 'POIK35MF8P9655',
 'PO1D7R7HI3N3YQ',
-'PO61OMPDVM4TG3'
-}
+'PO61OMPDVM4TG3',
+]
 
 st.title("CSVファイル内のコードチェック")
 
@@ -7015,19 +7015,16 @@ if uploaded_file is not None:
         st.subheader("アップロードされたCSVファイル")
         st.dataframe(df)
 
-        # DataFrame 全体を文字列に変換（一度だけ実行）
-        df_str = df.astype(str)
+        # DataFrame 全体を文字列に変換
+        df_str = df.astype(str).apply(lambda x: x.str.lower(), axis=0)
 
         found = False
         for code in target_codes:
-            # 各列に対してコードが含まれているか確認
-            for col in df_str.columns:
-                if code in df_str[col].str.lower().values:  # 大文字小文字を区別しない検索
-                    st.markdown(f'<p style="color:red;">該当するコードが見つかりました: {code}</p>', unsafe_allow_html=True)
-                    found = True
-                    break  # 内側のループを抜ける
-            if found:
-                break  # 外側のループを抜ける
+            # いずれかの列にコードが含まれているかを確認
+            if (df_str.apply(lambda x: x.str.contains(code.lower(), case=False)).any()).any():
+                st.markdown(f'<p style="color:red;">該当するコードが見つかりました: {code}</p>', unsafe_allow_html=True)
+                found = True
+                break  # ループを抜ける
 
         if not found:
             st.info("該当するコードは見つかりませんでした。")
